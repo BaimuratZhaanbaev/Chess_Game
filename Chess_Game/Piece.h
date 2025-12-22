@@ -10,6 +10,7 @@ private:
     int col;          // Столбец на доске (0-7)
     bool isWhite;     // Цвет: true — белая, false — чёрная
     QString name;     // Имя для отображения (например, "White Pawn")
+    bool hasMoved = false;  // Флаг для рокировки
 
     // Проверка, свободен ли путь для слона, ладьи или ферзя
     bool isPathClear(int toRow, int toCol, Piece* board[8][8]) const;
@@ -36,9 +37,11 @@ public:
     int getCol() const;
     bool getIsWhite() const;
     QString getName() const;
+    bool getHasMoved() const;
 
-    // Сеттер для позиции
+    // Сеттеры
     void setPosition(int r, int c);
+    void setHasMoved(bool moved);
 
     // Проверка валидности хода
     bool isValidMove(int toRow, int toCol, Piece* board[8][8]) const;

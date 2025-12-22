@@ -7,6 +7,7 @@ private:
     char pieceType;
     char capturedType;
     bool isWhite;
+    bool isCastle = false;  // Флаг для рокировки
 
 public:
     // Конструктор по умолчанию
@@ -32,7 +33,10 @@ public:
     char getPieceType() const;
     char getCapturedType() const;
     bool getIsWhite() const;
+    bool getIsCastle() const;
+
+    // Сеттеры
+    void setIsCastle(bool castle);
 };
 
 #endif // MOVE_H
-

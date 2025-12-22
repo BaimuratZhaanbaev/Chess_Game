@@ -92,7 +92,7 @@
     <Image Include="resources\black_bishop.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="resources\black_king.png">
+    <Image Include="resources\black_queen.png">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="resources\black_knight.png">
@@ -101,7 +101,7 @@
     <Image Include="resources\black_pawn.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="resources\black_queen.png">
+    <Image Include="resources\black_king.png">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="resources\black_rook.png">
@@ -110,7 +110,7 @@
     <Image Include="resources\white_bishop.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="resources\white_king.png">
+    <Image Include="resources\white_queen.png">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="resources\white_knight.png">
@@ -119,7 +119,7 @@
     <Image Include="resources\white_pawn.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="resources\white_queen.png">
+    <Image Include="resources\white_king.png">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="resources\white_rook.png">

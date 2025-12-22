@@ -1,6 +1,7 @@
 ﻿#include "Board.h"
 
-Board::Board() {
+Board::Board() 
+{
     for (int i = 0; i < 8; ++i) {
         for (int j = 0; j < 8; ++j) {
             board[i][j] = nullptr;
@@ -9,7 +10,8 @@ Board::Board() {
     initializeBoard();
 }
 
-Board::~Board() {
+Board::~Board() 
+{
     for (int i = 0; i < 8; ++i) {
         for (int j = 0; j < 8; ++j) {
             delete board[i][j];
@@ -17,7 +19,8 @@ Board::~Board() {
     }
 }
 
-void Board::initializeBoard() {
+void Board::initializeBoard() 
+{
     // Белые фигуры
     board[0][0] = new Piece('R', 0, 0, true);
     board[0][1] = new Piece('N', 0, 1, true);
@@ -45,12 +48,14 @@ void Board::initializeBoard() {
     }
 }
 
-Piece* Board::getPiece(int row, int col) const {
+Piece* Board::getPiece(int row, int col) const 
+{
     if (row < 0 || row > 7 || col < 0 || col > 7) return nullptr;
     return board[row][col];
 }
 
-bool Board::movePiece(int fromRow, int fromCol, int toRow, int toCol, bool isWhiteTurn) {
+bool Board::movePiece(int fromRow, int fromCol, int toRow, int toCol, bool isWhiteTurn) 
+{
     if (fromRow < 0 || fromRow > 7 || fromCol < 0 || fromCol > 7 ||
         toRow < 0 || toRow > 7 || toCol < 0 || toCol > 7) return false;
 
@@ -59,32 +64,105 @@ bool Board::movePiece(int fromRow, int fromCol, int toRow, int toCol, bool isWhi
 
     char captured = (board[toRow][toCol] ? board[toRow][toCol]->getType() : ' ');
 
-    if (piece->isValidMove(toRow, toCol, board)) {
+    if (piece->isValidMove(toRow, toCol, board)) 
+    {
         delete board[toRow][toCol];
         board[toRow][toCol] = piece;
         piece->setPosition(toRow, toCol);
         board[fromRow][fromCol] = nullptr;
-        moveHistory.push_back(Move(fromRow, fromCol, toRow, toCol, piece->getType(), captured, isWhiteTurn));
+
+        bool castle = false;
+        if (piece->getType() == 'K' || piece->getType() == 'k') 
+        {
+            if (fromCol == 4 && (toCol == 6 || toCol == 2)) 
+            {
+                castle = true;
+                // Короткая рокировка (0-0)
+                if (toCol == 6) 
+                {
+                    Piece* rook = board[fromRow][7];
+                    if (rook) 
+                    {
+                        board[fromRow][5] = rook;
+                        rook->setPosition(fromRow, 5);
+                        board[fromRow][7] = nullptr;
+                    }
+                }
+                // Длинная рокировка (0-0-0)
+                if (toCol == 2) 
+                {
+                    Piece* rook = board[fromRow][0];
+                    if (rook) 
+                    {
+                        board[fromRow][3] = rook;
+                        rook->setPosition(fromRow, 3);
+                        board[fromRow][0] = nullptr;
+                    }
+                }
+            }
+        }
+
+        piece->setHasMoved(true);  // Король всегда ходил
+
+        Move move(fromRow, fromCol, toRow, toCol, piece->getType(), captured, isWhiteTurn);
+        move.setIsCastle(castle);  // Помечаем, если рокировка
+        moveHistory.push_back(move);
         return true;
     }
+
     return false;
 }
 
-void Board::undoLastMove() {
+void Board::undoLastMove() 
+{
     if (moveHistory.empty()) return;
 
     Move lastMove = moveHistory.back();
     moveHistory.pop_back();
 
     Piece* piece = board[lastMove.getToRow()][lastMove.getToCol()];
-    if (piece) {
+
+    if (piece) 
+    {
         piece->setPosition(lastMove.getFromRow(), lastMove.getFromCol());
         board[lastMove.getFromRow()][lastMove.getFromCol()] = piece;
+        piece->setHasMoved(false);  // Сбрасываем для короля
     }
-    if (lastMove.getCapturedType() != ' ') {
-        board[lastMove.getToRow()][lastMove.getToCol()] = new Piece(lastMove.getCapturedType(), lastMove.getToRow(), lastMove.getToCol(), !lastMove.getIsWhite());
+    if (lastMove.getCapturedType() != ' ') 
+    {
+        board[lastMove.getToRow()][lastMove.getToCol()] = 
+            new Piece(lastMove.getCapturedType(), lastMove.getToRow(), lastMove.getToCol(), !lastMove.getIsWhite());
     }
-    else {
+    else
+    {
         board[lastMove.getToRow()][lastMove.getToCol()] = nullptr;
+    }
+
+    // Обработка отмены рокировки
+    if (lastMove.getIsCastle()) 
+    {
+        int fromRow = lastMove.getFromRow();
+        if (lastMove.getToCol() == 6) // Короткая (0-0)
+        {
+            Piece* rook = board[fromRow][5];
+            if (rook) 
+            {
+                rook->setPosition(fromRow, 7);
+                board[fromRow][7] = rook;
+                board[fromRow][5] = nullptr;
+                rook->setHasMoved(false);  // Сбрасываем для ладьи
+            }
+        }
+        else if (lastMove.getToCol() == 2) // Длинная (0-0-0)
+        {  
+            Piece* rook = board[fromRow][3];
+            if (rook) 
+            {
+                rook->setPosition(fromRow, 0);
+                board[fromRow][0] = rook;
+                board[fromRow][3] = nullptr;
+                rook->setHasMoved(false);
+            }
+        }
     }
 }
