@@ -1,0 +1,89 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+/////////////////////////////////////////////////////////////////////////////
+// Русский (Россия) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+LANGUAGE 0x19, 0x01
+#pragma code_page(1251)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICON1               ICON                    "C:\\Users\\Baika\\Chess_Game\\Chess_Game\\Chess_Game.ico"
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// PNG
+//
+
+IDB_PNG1                PNG                     "C:\\Users\\Baika\\Chess_Game\\Chess_Game\\RESOURCES\\BLACK_BISHOP.png"
+
+IDB_PNG2                PNG                     "C:\\Users\\Baika\\Chess_Game\\Chess_Game\\RESOURCES\\BLACK_KING.png"
+
+IDB_PNG3                PNG                     "C:\\Users\\Baika\\Chess_Game\\Chess_Game\\RESOURCES\\BLACK_KNIGHT.png"
+
+IDB_PNG4                PNG                     "C:\\Users\\Baika\\Chess_Game\\Chess_Game\\RESOURCES\\BLACK_PAWN.png"
+
+IDB_PNG5                PNG                     "C:\\Users\\Baika\\Chess_Game\\Chess_Game\\RESOURCES\\BLACK_QUEEN.png"
+
+IDB_PNG6                PNG                     "C:\\Users\\Baika\\Chess_Game\\Chess_Game\\RESOURCES\\BLACK_ROOK.png"
+
+IDB_PNG7                PNG                     "C:\\Users\\Baika\\Chess_Game\\Chess_Game\\RESOURCES\\WHITE_BISHOP.png"
+
+IDB_PNG8                PNG                     "C:\\Users\\Baika\\Chess_Game\\Chess_Game\\RESOURCES\\WHITE_KING.png"
+
+IDB_PNG9                PNG                     "C:\\Users\\Baika\\Chess_Game\\Chess_Game\\RESOURCES\\WHITE_KNIGHT.png"
+
+IDB_PNG10               PNG                     "C:\\Users\\Baika\\Chess_Game\\Chess_Game\\RESOURCES\\WHITE_PAWN.png"
+
+IDB_PNG11               PNG                     "C:\\Users\\Baika\\Chess_Game\\Chess_Game\\RESOURCES\\white_QUEEN.png"
+
+IDB_PNG12               PNG                     "C:\\Users\\Baika\\Chess_Game\\Chess_Game\\RESOURCES\\WHITE_ROOK.PNG"
+
+#endif    // Русский (Россия) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
