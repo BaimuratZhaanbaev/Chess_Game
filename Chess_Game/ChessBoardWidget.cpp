@@ -3,16 +3,15 @@
 ChessBoardWidget::ChessBoardWidget(QWidget* parent)
     : QWidget(parent)
     , board(nullptr)
+    , game(nullptr)
     , selectedSquare(-1, -1) 
 {
     setFixedSize(400, 400); // 8x8 клеток по 50 пикселей
 }
 
-void ChessBoardWidget::setBoard(Board* b) 
-{
-    board = b;
-    update();
-}
+void ChessBoardWidget::setBoard(Board* b) { board = b; update(); }
+
+void ChessBoardWidget::setGame(Game* g) { game = g; }
 
 void ChessBoardWidget::paintEvent(QPaintEvent*) 
 {
@@ -37,7 +36,11 @@ void ChessBoardWidget::paintEvent(QPaintEvent*)
     }
 }
 
-void ChessBoardWidget::mousePressEvent(QMouseEvent* event) {
+void ChessBoardWidget::mousePressEvent(QMouseEvent* event) 
+{
+    if (game->isGameOver()) {  // ← Спрашиваем у Game
+        return;  // Ничего не делаем при мате
+    }
     if (!board) return;
     int col = static_cast<int>(event->position().x()) / 50;
     int row = 7 - static_cast<int>(event->position().y()) / 50;

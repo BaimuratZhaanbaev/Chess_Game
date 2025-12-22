@@ -70,7 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Board.h" />
-    <ClInclude Include="ChessBoardWidget.h" />
+    <QtMoc Include="ChessBoardWidget.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Move.h" />
     <ClInclude Include="Piece.h" />

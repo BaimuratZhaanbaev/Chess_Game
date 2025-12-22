@@ -10,6 +10,7 @@ private:
     Piece* board[8][8]; // Массив указателей на фигуры
     std::vector<Move> moveHistory; // История ходов
 
+
 public:
     Board();
     ~Board();
@@ -21,6 +22,9 @@ public:
     void initializeBoard();
 
     void undoLastMove();
+
+    bool isInCheck(bool isWhite);  // Проверка шаха
+    bool isCheckmate(bool isWhite);  // Проверка мата
 };
 
 #endif // BOARD_H

@@ -62,63 +62,76 @@ Piece* Board::getPiece(int row, int col) const
     return board[row][col];
 }
 
-bool Board::movePiece(int fromRow, int fromCol, int toRow, int toCol, bool isWhiteTurn) 
-{
+bool Board::movePiece(int fromRow, int fromCol, int toRow, int toCol, bool isWhiteTurn) {
     if (fromRow < 0 || fromRow > 7 || fromCol < 0 || fromCol > 7 ||
         toRow < 0 || toRow > 7 || toCol < 0 || toCol > 7) return false;
 
     Piece* piece = board[fromRow][fromCol];
     if (!piece || piece->getIsWhite() != isWhiteTurn) return false;
 
-    char captured = (board[toRow][toCol] ? board[toRow][toCol]->getType() : ' ');
+    // Проверяем валидность хода по правилам фигуры
+    if (!piece->isValidMove(toRow, toCol, board)) return false;
 
-    if (piece->isValidMove(toRow, toCol, board)) 
-    {
-        delete board[toRow][toCol];
-        board[toRow][toCol] = piece;
-        piece->setPosition(toRow, toCol);
-        board[fromRow][fromCol] = nullptr;
+    // Симулируем ход
+    Piece* captured = board[toRow][toCol];  // Сохраняем взятую фигуру
+    board[toRow][toCol] = piece;
+    board[fromRow][fromCol] = nullptr;
+    piece->setPosition(toRow, toCol);
 
-        bool castle = false;
-        if (piece->getType() == 'K' || piece->getType() == 'k') 
-        {
-            if (fromCol == 4 && (toCol == 6 || toCol == 2)) 
+    // Проверяем, остаётся ли король под шахом после хода
+    bool kingInCheck = isInCheck(isWhiteTurn);
+
+    // Откатываем симуляцию
+    board[fromRow][fromCol] = piece;
+    board[toRow][toCol] = captured;
+    piece->setPosition(fromRow, fromCol);
+
+    if (kingInCheck) {
+        return false;  // Ход запрещён — оставляет короля под шахом
+    }
+
+    // Ход валидный — выполняем его по-настоящему
+    board[toRow][toCol] = piece;
+    board[fromRow][fromCol] = nullptr;
+    piece->setPosition(toRow, toCol);
+
+    // Рокировка
+    bool castle = false;
+    if (piece->getType() == 'K' || piece->getType() == 'k') {
+        if (fromCol == 4 && (toCol == 6 || toCol == 2)) {
+            castle = true;
+            // Короткая рокировка (0-0)
+            if (toCol == 6)
             {
-                castle = true;
-                // Короткая рокировка (0-0)
-                if (toCol == 6) 
+                Piece* rook = board[fromRow][7];
+                if (rook)
                 {
-                    Piece* rook = board[fromRow][7];
-                    if (rook) 
-                    {
-                        board[fromRow][5] = rook;
-                        rook->setPosition(fromRow, 5);
-                        board[fromRow][7] = nullptr;
-                    }
+                    board[fromRow][5] = rook;
+                    rook->setPosition(fromRow, 5);
+                    board[fromRow][7] = nullptr;
                 }
-                // Длинная рокировка (0-0-0)
-                if (toCol == 2) 
+            }
+            // Длинная рокировка (0-0-0)
+            if (toCol == 2)
+            {
+                Piece* rook = board[fromRow][0];
+                if (rook)
                 {
-                    Piece* rook = board[fromRow][0];
-                    if (rook) 
-                    {
-                        board[fromRow][3] = rook;
-                        rook->setPosition(fromRow, 3);
-                        board[fromRow][0] = nullptr;
-                    }
+                    board[fromRow][3] = rook;
+                    rook->setPosition(fromRow, 3);
+                    board[fromRow][0] = nullptr;
                 }
             }
         }
-
-        piece->setHasMoved(true);  // Король всегда ходил
-
-        Move move(fromRow, fromCol, toRow, toCol, piece->getType(), captured, isWhiteTurn);
-        move.setIsCastle(castle);  // Помечаем, если рокировка
-        moveHistory.push_back(move);
-        return true;
     }
+    piece->setHasMoved(true);
 
-    return false;
+    Move move(fromRow, fromCol, toRow, toCol, piece->getType(), captured ? captured->getType() : ' ', isWhiteTurn);
+    move.setIsCastle(castle);
+    moveHistory.push_back(move);
+    delete captured;
+
+    return true;
 }
 
 void Board::undoLastMove() 
@@ -173,4 +186,70 @@ void Board::undoLastMove()
             }
         }
     }
+}
+
+bool Board::isInCheck(bool isWhite) {
+    // Находим короля
+    int kingRow = -1, kingCol = -1;
+    char kingType = isWhite ? 'K' : 'k';
+    for (int r = 0; r < 8; ++r) {
+        for (int c = 0; c < 8; ++c) {
+            Piece* p = getPiece(r, c);
+            if (p && p->getType() == kingType) {
+                kingRow = r;
+                kingCol = c;
+                goto found_king;  // Выходим из вложенных циклов
+            }
+        }
+    }
+    found_king:
+        if (kingRow == -1) return false;
+
+        // Проверяем угрозы от противника
+        for (int r = 0; r < 8; ++r) {
+            for (int c = 0; c < 8; ++c) {
+                Piece* p = getPiece(r, c);
+                if (p && p->getIsWhite() != isWhite) 
+                {
+                    if (p->isValidMove(kingRow, kingCol, board)) return true;  // Шах!
+                }
+            }
+        }
+        return false;
+}
+
+bool Board::isCheckmate(bool isWhite) {
+    if (!isInCheck(isWhite)) return false;
+
+    // Пробуем все возможные ходы своих фигур
+    for (int r = 0; r < 8; ++r) {
+        for (int c = 0; c < 8; ++c) {
+            Piece* p = board[r][c];
+            if (p && p->getIsWhite() == isWhite) 
+            {
+                for (int tr = 0; tr < 8; ++tr) {
+                    for (int tc = 0; tc < 8; ++tc) {
+                        if (p->isValidMove(tr, tc, board)) 
+                        {
+                            // Симулируем ход
+                            Piece* captured = board[tr][tc];
+                            board[tr][tc] = p;
+                            board[r][c] = nullptr;
+
+                            bool stillInCheck = isInCheck(isWhite);
+
+                            // Откатываем ход
+                            board[r][c] = p;
+                            board[tr][tc] = captured;
+
+                            if (!stillInCheck) {
+                                return false;  // Есть спасительный ход
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return true;  // Мат!
 }

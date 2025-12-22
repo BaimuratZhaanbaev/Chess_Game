@@ -13,11 +13,25 @@ void Game::startGame() {
 }
 
 void Game::makeMove(int fromRow, int fromCol, int toRow, int toCol) {
-    if (board.movePiece(fromRow, fromCol, toRow, toCol, isWhiteTurn)) {
+    if (board.movePiece(fromRow, fromCol, toRow, toCol, isWhiteTurn)) 
+    {
         isWhiteTurn = !isWhiteTurn;
-        gameStatus = isWhiteTurn ? "Ход белых" : "Ход чёрных";
+        if (board.isCheckmate(isWhiteTurn)) 
+        {
+            gameStatus = isWhiteTurn ? "Мат! Чёрные победили" : "Мат! Белые победили";
+            gameOver = true; // Конец игры
+        }
+        else if (board.isInCheck(isWhiteTurn)) 
+        {
+            gameStatus = isWhiteTurn ? "Шах белым!" : "Шах чёрным!";
+        }
+        else 
+        {
+            gameStatus = isWhiteTurn ? "Ход белых" : "Ход чёрных";
+        }
     }
-    else {
+    else 
+    {
         gameStatus = "Недопустимый ход";
     }
 }
@@ -28,6 +42,7 @@ void Game::undoMove() {
     gameStatus = isWhiteTurn ? "Ход белых" : "Ход чёрных";
 }
 
-QString Game::getStatus() const {
-    return gameStatus;
-}
+bool Game::isGameOver() const { return gameOver; }
+void Game::setGameOver(bool over) { gameOver = over; }
+
+QString Game::getStatus() const { return gameStatus; }

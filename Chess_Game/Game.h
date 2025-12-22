@@ -10,6 +10,7 @@ private:
     Board board;
     bool isWhiteTurn;
     QString gameStatus;
+    bool gameOver = false;
 
 public:
     Game();
@@ -18,6 +19,8 @@ public:
     void startGame();
     void makeMove(int fromRow, int fromCol, int toRow, int toCol);
     void undoMove();
+    bool isGameOver() const;
+    void setGameOver(bool over);
     QString getStatus() const;
     Board& getBoard() { return board; }
 };
