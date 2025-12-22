@@ -21,6 +21,14 @@ Board::~Board()
 
 void Board::initializeBoard() 
 {
+    // Удаляем все старые фигуры, чтобы избежать накладывания и утечки
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            delete board[i][j];
+            board[i][j] = nullptr;
+        }
+    }
+
     // Белые фигуры
     board[0][0] = new Piece('R', 0, 0, true);
     board[0][1] = new Piece('N', 0, 1, true);

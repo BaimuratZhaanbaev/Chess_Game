@@ -1,23 +1,35 @@
 ﻿#include "ChessBoardWidget.h"
 
 ChessBoardWidget::ChessBoardWidget(QWidget* parent)
-    : QWidget(parent), board(nullptr), selectedSquare(-1, -1) {
+    : QWidget(parent)
+    , board(nullptr)
+    , selectedSquare(-1, -1) 
+{
     setFixedSize(400, 400); // 8x8 клеток по 50 пикселей
 }
 
-void ChessBoardWidget::setBoard(Board* b) {
+void ChessBoardWidget::setBoard(Board* b) 
+{
     board = b;
     update();
 }
 
-void ChessBoardWidget::paintEvent(QPaintEvent*) {
+void ChessBoardWidget::paintEvent(QPaintEvent*) 
+{
     if (!board) return;
     QPainter painter(this);
+
+    // Очистка всего фона перед отрисовкой (стирает старое)
+    painter.fillRect(rect(), Qt::white);
+
+    // Отрисовка квадратов
     for (int row = 0; row < 8; ++row) {
         for (int col = 0; col < 8; ++col) {
-            painter.fillRect(col * 50, (7 - row) * 50, 50, 50,
-                (row + col) % 2 ? Qt::lightGray : Qt::white);
-            if (Piece* p = board->getPiece(row, col)) {
+
+            painter.fillRect(col * 50, (7 - row) * 50, 50, 50, (row + col) % 2 ? Qt::lightGray : Qt::white);
+
+            if (Piece* p = board->getPiece(row, col)) 
+            {
                 QPixmap pixmap(p->getImagePath());
                 painter.drawPixmap(col * 50, (7 - row) * 50, 50, 50, pixmap);
             }
