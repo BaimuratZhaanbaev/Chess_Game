@@ -11,6 +11,7 @@ private:
     bool isWhiteTurn;
     QString gameStatus;
     bool gameOver = false;
+    int halfMovesWithoutCaptureOrPawn = 0;
 
 public:
     Game();

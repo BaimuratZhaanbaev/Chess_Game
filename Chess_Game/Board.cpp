@@ -62,7 +62,8 @@ Piece* Board::getPiece(int row, int col) const
     return board[row][col];
 }
 
-bool Board::movePiece(int fromRow, int fromCol, int toRow, int toCol, bool isWhiteTurn) {
+bool Board::movePiece(int fromRow, int fromCol, int toRow, int toCol, bool isWhiteTurn) 
+{
     if (fromRow < 0 || fromRow > 7 || fromCol < 0 || fromCol > 7 ||
         toRow < 0 || toRow > 7 || toCol < 0 || toCol > 7) return false;
 
@@ -86,7 +87,8 @@ bool Board::movePiece(int fromRow, int fromCol, int toRow, int toCol, bool isWhi
     board[toRow][toCol] = captured;
     piece->setPosition(fromRow, fromCol);
 
-    if (kingInCheck) {
+    if (kingInCheck) 
+    {
         return false;  // Ход запрещён — оставляет короля под шахом
     }
 
@@ -97,8 +99,10 @@ bool Board::movePiece(int fromRow, int fromCol, int toRow, int toCol, bool isWhi
 
     // Рокировка
     bool castle = false;
-    if (piece->getType() == 'K' || piece->getType() == 'k') {
-        if (fromCol == 4 && (toCol == 6 || toCol == 2)) {
+    if (piece->getType() == 'K' || piece->getType() == 'k') 
+    {
+        if (fromCol == 4 && (toCol == 6 || toCol == 2)) 
+        {
             castle = true;
             // Короткая рокировка (0-0)
             if (toCol == 6)
@@ -129,6 +133,11 @@ bool Board::movePiece(int fromRow, int fromCol, int toRow, int toCol, bool isWhi
     Move move(fromRow, fromCol, toRow, toCol, piece->getType(), captured ? captured->getType() : ' ', isWhiteTurn);
     move.setIsCastle(castle);
     moveHistory.push_back(move);
+
+    // Сохраняем информацию для Game
+    lastMoveWasCapture = ((captured ? captured->getType() : ' ') != ' ');
+    lastMovedPieceType = piece->getType();
+
     delete captured;
 
     return true;
@@ -188,14 +197,16 @@ void Board::undoLastMove()
     }
 }
 
-bool Board::isInCheck(bool isWhite) {
+bool Board::isInCheck(bool isWhite) 
+{
     // Находим короля
     int kingRow = -1, kingCol = -1;
     char kingType = isWhite ? 'K' : 'k';
     for (int r = 0; r < 8; ++r) {
         for (int c = 0; c < 8; ++c) {
             Piece* p = getPiece(r, c);
-            if (p && p->getType() == kingType) {
+            if (p && p->getType() == kingType) 
+            {
                 kingRow = r;
                 kingCol = c;
                 goto found_king;  // Выходим из вложенных циклов
@@ -218,7 +229,8 @@ bool Board::isInCheck(bool isWhite) {
         return false;
 }
 
-bool Board::isCheckmate(bool isWhite) {
+bool Board::isCheckmate(bool isWhite) 
+{
     if (!isInCheck(isWhite)) return false;
 
     // Пробуем все возможные ходы своих фигур
@@ -252,4 +264,67 @@ bool Board::isCheckmate(bool isWhite) {
         }
     }
     return true;  // Мат!
+}
+
+bool Board::isStalemate(bool isWhite) {
+    if (isInCheck(isWhite)) return false;  // Шах — не пат
+
+    // Проверяем, есть ли валидные ходы
+    for (int r = 0; r < 8; ++r) {
+        for (int c = 0; c < 8; ++c) {
+            Piece* p = getPiece(r, c);
+            if (p && p->getIsWhite() == isWhite) 
+            {
+                for (int tr = 0; tr < 8; ++tr) {
+                    for (int tc = 0; tc < 8; ++tc) {
+                        if (p->isValidMove(tr, tc, board)) 
+                        {
+                            // Симулируем ход
+                            Piece* temp = board[tr][tc];
+                            board[tr][tc] = p;
+                            board[r][c] = nullptr;
+                            bool check = isInCheck(isWhite);
+                            board[r][c] = p;
+                            board[tr][tc] = temp;
+
+                            if (!check) return false;  // Есть валидный ход
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return true;  // Пат — ничья
+}
+
+bool Board::isInsufficientMaterial() const {
+    int whitePieces = 0, blackPieces = 0;
+    bool whiteKnightOrBishop = false, blackKnightOrBishop = false;
+
+    for (int r = 0; r < 8; ++r) {
+        for (int c = 0; c < 8; ++c) {
+            Piece* p = getPiece(r, c);
+            if (p) 
+            {
+                char type = std::tolower(p->getType());
+                if (p->getIsWhite()) 
+                {
+                    whitePieces++;
+                    if (type == 'n' || type == 'b') whiteKnightOrBishop = true;
+                }
+                else 
+                {
+                    blackPieces++;
+                    if (type == 'n' || type == 'b') blackKnightOrBishop = true;
+                }
+            }
+        }
+    }
+
+    if (whitePieces == 1 && blackPieces == 1) return true;  // Король vs король
+
+    if (whitePieces == 1 && blackPieces == 2 && blackKnightOrBishop) return true;  // Король vs король + конь/слон
+    if (whitePieces == 2 && blackPieces == 1 && whiteKnightOrBishop) return true;  // Обратное
+
+    return false;
 }
