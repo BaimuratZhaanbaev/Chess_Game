@@ -4,8 +4,9 @@
 class Move {
 private:
     int fromRow, fromCol, toRow, toCol;
-    char pieceType;
-    char capturedType;
+    char pieceType;         // Тип фигуры после хода
+    char capturedType;      // Тип взятой фигуры
+    char originalType = ' ';      // Тип фигуры до превращения пешки ('P' или 'p')
     bool isWhite;
     bool isCastle = false;  // Флаг для рокировки
 
@@ -14,7 +15,7 @@ public:
     Move();
 
     // Параметризованный конструктор
-    Move(int fr, int fc, int tr, int tc, char pt, char ct, bool w);
+    Move(int fr, int fc, int tr, int tc, char pt, char ct, bool w, char origType = ' ');
 
     // Конструктор копирования
     Move(const Move& other);
@@ -32,6 +33,7 @@ public:
     int getToCol() const;
     char getPieceType() const;
     char getCapturedType() const;
+    char getOriginalType() const;
     bool getIsWhite() const;
     bool getIsCastle() const;
 

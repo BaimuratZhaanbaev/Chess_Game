@@ -1,5 +1,6 @@
 ﻿#include "MainWindow.h"
 #include "ui_MainWindow.h"
+#include <QInputDialog>
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
@@ -18,6 +19,8 @@ MainWindow::MainWindow(QWidget* parent)
     connect(ui->newGameButton, &QPushButton::clicked, this, &MainWindow::onNewGame);
     connect(ui->undoButton, &QPushButton::clicked, this, &MainWindow::onUndo);
     connect(ui->exitButton, &QPushButton::clicked, this, &MainWindow::onExit);
+    connect(game, &Game::pawnPromotionRequired, this, &MainWindow::onPawnPromotion);
+
 }
 
 MainWindow::~MainWindow() {
@@ -41,4 +44,36 @@ void MainWindow::onUndo() {
 
 void MainWindow::onExit() {
     close();
+}
+
+void MainWindow::onPawnPromotion(int row, int col, bool isWhite) 
+{
+    QStringList options = { "Ферзь", "Ладья", "Слон", "Конь" };
+
+    bool ok;
+    QString choice = QInputDialog::getItem(
+        this,
+        "Превращение пешки",
+        "Выберите фигуру:",
+        options,
+        0,
+        false,
+        &ok
+    );
+
+    if (!ok) choice = "Ферзь"; // по умолчанию
+
+    char newType;
+    if (choice == "Ферзь") newType = 'Q';
+    else if (choice == "Ладья") newType = 'R';
+    else if (choice == "Слон") newType = 'B';
+    else newType = 'N';
+
+    if (!isWhite)
+        newType = std::tolower(newType);
+
+    game->promotePawn(row, col, newType);
+
+    ui->chessBoardWidget->update();
+    ui->statusLabel->setText(game->getStatus());
 }

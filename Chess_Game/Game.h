@@ -1,11 +1,14 @@
 ﻿#ifndef GAME_H
 #define GAME_H
 
+#include <QObject>
 #include "Board.h"
 #include "Move.h"
 #include <QString>
 
-class Game {
+class Game : public QObject {
+    Q_OBJECT
+
 private:
     Board board;
     bool isWhiteTurn;
@@ -14,7 +17,7 @@ private:
     int halfMovesWithoutCaptureOrPawn = 0;
 
 public:
-    Game();
+    explicit Game(QObject* parent = nullptr);
     ~Game();
 
     void startGame();
@@ -24,6 +27,10 @@ public:
     void setGameOver(bool over);
     QString getStatus() const;
     Board& getBoard() { return board; }
+    void promotePawn(int row, int col, char newType);
+
+signals:
+    void pawnPromotionRequired(int row, int col, bool isWhite);
 };
 
 #endif // GAME_H

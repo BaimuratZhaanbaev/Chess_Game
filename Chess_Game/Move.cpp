@@ -7,16 +7,18 @@ Move::Move()
     , toCol(0)
     , pieceType('P')
     , capturedType(' ')
+    , originalType(' ')
     , isWhite(true)
 {}
 
-Move::Move(int fr, int fc, int tr, int tc, char pt, char ct, bool w)
+Move::Move(int fr, int fc, int tr, int tc, char pt, char ct, bool w, char origType)
     : fromRow(fr)
     , fromCol(fc)
     , toRow(tr)
     , toCol(tc)
     , pieceType(pt)
     , capturedType(ct)
+    , originalType(origType)
     , isWhite(w) 
 {}
 
@@ -32,6 +34,7 @@ int Move::getToRow() const { return toRow; }
 int Move::getToCol() const { return toCol; }
 char Move::getPieceType() const { return pieceType; }
 char Move::getCapturedType() const { return capturedType; }
+char Move::getOriginalType() const { return originalType; }
 bool Move::getIsWhite() const { return isWhite; }
 bool Move::getIsCastle() const { return isCastle; }
 

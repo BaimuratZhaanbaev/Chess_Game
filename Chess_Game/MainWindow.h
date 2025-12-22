@@ -21,10 +21,11 @@ private slots:
     void onNewGame();
     void onUndo();
     void onExit();
+    void onPawnPromotion(int row, int col, bool isWhite);
 
 private:
     Ui::MainWindow* ui;
-    Game* game; 
+    Game* game;
 };
 
 #endif // MAINWINDOW_H

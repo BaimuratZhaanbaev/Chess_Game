@@ -18,6 +18,8 @@ public:
     ~Board();
 
     Piece* getPiece(int row, int col) const;
+    Piece* (*getBoard())[8] { return board; }
+
     bool wasLastMoveCapture() const { return lastMoveWasCapture; }
     char getLastMovedPieceType() const { return lastMovedPieceType; }
 
@@ -32,6 +34,9 @@ public:
 
     bool isStalemate(bool isWhite);  // Пат
     bool isInsufficientMaterial() const;  // Недостаточно материала
+
+    void promotePawn(int row, int col, char newType); // Превращение пешки
+
 };
 
 #endif // BOARD_H

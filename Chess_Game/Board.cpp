@@ -130,7 +130,8 @@ bool Board::movePiece(int fromRow, int fromCol, int toRow, int toCol, bool isWhi
     }
     piece->setHasMoved(true);
 
-    Move move(fromRow, fromCol, toRow, toCol, piece->getType(), captured ? captured->getType() : ' ', isWhiteTurn);
+    char originalType = ' ';
+    Move move(fromRow, fromCol, toRow, toCol, piece->getType(), captured ? captured->getType() : ' ', isWhiteTurn, originalType);
     move.setIsCastle(castle);
     moveHistory.push_back(move);
 
@@ -143,59 +144,112 @@ bool Board::movePiece(int fromRow, int fromCol, int toRow, int toCol, bool isWhi
     return true;
 }
 
-void Board::undoLastMove() 
+void Board::undoLastMove()
 {
     if (moveHistory.empty()) return;
 
     Move lastMove = moveHistory.back();
     moveHistory.pop_back();
 
-    Piece* piece = board[lastMove.getToRow()][lastMove.getToCol()];
+    int fromRow = lastMove.getFromRow();
+    int fromCol = lastMove.getFromCol();
+    int toRow = lastMove.getToRow();
+    int toCol = lastMove.getToCol();
 
-    if (piece) 
+    Piece* movedPiece = board[toRow][toCol];
+
+    // Восстанавливаем ходящую фигуру
+    if (movedPiece)
     {
-        piece->setPosition(lastMove.getFromRow(), lastMove.getFromCol());
-        board[lastMove.getFromRow()][lastMove.getFromCol()] = piece;
-        piece->setHasMoved(false);  // Сбрасываем для короля
+        char typeToRestore = lastMove.getOriginalType() != ' ' ? lastMove.getOriginalType() : movedPiece->getType();
+        bool isWhite = movedPiece->getIsWhite();
+
+        delete movedPiece;
+        board[fromRow][fromCol] = new Piece(typeToRestore, fromRow, fromCol, isWhite);
+        board[fromRow][fromCol]->setHasMoved(false);
     }
-    if (lastMove.getCapturedType() != ' ') 
+
+    // Восстановление взятой фигуры
+    if (lastMove.getCapturedType() != ' ')
     {
-        board[lastMove.getToRow()][lastMove.getToCol()] = 
-            new Piece(lastMove.getCapturedType(), lastMove.getToRow(), lastMove.getToCol(), !lastMove.getIsWhite());
+        board[toRow][toCol] = new Piece(lastMove.getCapturedType(), toRow, toCol, !lastMove.getIsWhite());
     }
     else
     {
-        board[lastMove.getToRow()][lastMove.getToCol()] = nullptr;
-    }
-
-    // Обработка отмены рокировки
-    if (lastMove.getIsCastle()) 
-    {
-        int fromRow = lastMove.getFromRow();
-        if (lastMove.getToCol() == 6) // Короткая (0-0)
+        if (!(lastMove.getOriginalType() != ' ')) // если не превращение
         {
-            Piece* rook = board[fromRow][5];
-            if (rook) 
+            board[toRow][toCol] = nullptr;
+        }
+        // Иначе возвращаем на 2 шага назад, ведь одна история - это превращение
+        else 
+        {
+            Move lastMove = moveHistory.back();
+            moveHistory.pop_back();
+
+            int fromRow = lastMove.getFromRow();
+            int fromCol = lastMove.getFromCol();
+            int toRow = lastMove.getToRow();
+            int toCol = lastMove.getToCol();
+
+            Piece* movedPiece = board[toRow][toCol];
+
+            // Восстанавливаем ходящую фигуру
+            if (movedPiece)
             {
-                rook->setPosition(fromRow, 7);
-                board[fromRow][7] = rook;
-                board[fromRow][5] = nullptr;
-                rook->setHasMoved(false);  // Сбрасываем для ладьи
+                char typeToRestore = lastMove.getOriginalType() != ' ' ? lastMove.getOriginalType() : movedPiece->getType();
+                bool isWhite = movedPiece->getIsWhite();
+
+                delete movedPiece;
+                board[fromRow][fromCol] = new Piece(typeToRestore, fromRow, fromCol, isWhite);
+                board[fromRow][fromCol]->setHasMoved(false);
+            }
+
+            // Восстановление взятой фигуры
+            if (lastMove.getCapturedType() != ' ')
+            {
+                board[toRow][toCol] = new Piece(lastMove.getCapturedType(), toRow, toCol, !lastMove.getIsWhite());
+            }
+            else
+            {
+                board[toRow][toCol] = nullptr;
             }
         }
-        else if (lastMove.getToCol() == 2) // Длинная (0-0-0)
-        {  
-            Piece* rook = board[fromRow][3];
-            if (rook) 
+        
+    }
+
+    // Обработка рокировки
+    if (lastMove.getIsCastle())
+    {
+        int row = fromRow;
+        if (toCol == 6) // Короткая рокировка (0-0)
+        {
+            Piece* rook = board[row][5];
+            if (rook)
             {
-                rook->setPosition(fromRow, 0);
-                board[fromRow][0] = rook;
-                board[fromRow][3] = nullptr;
+                rook->setPosition(row, 7);
+                board[row][7] = rook;
+                board[row][5] = nullptr;
+                rook->setHasMoved(false);
+            }
+        }
+        else if (toCol == 2) // Длинная рокировка (0-0-0)
+        {
+            Piece* rook = board[row][3];
+            if (rook)
+            {
+                rook->setPosition(row, 0);
+                board[row][0] = rook;
+                board[row][3] = nullptr;
                 rook->setHasMoved(false);
             }
         }
     }
+
+    // Сброс информации о последнем ходе
+    lastMoveWasCapture = false;
+    lastMovedPieceType = ' ';
 }
+
 
 bool Board::isInCheck(bool isWhite) 
 {
@@ -266,7 +320,8 @@ bool Board::isCheckmate(bool isWhite)
     return true;  // Мат!
 }
 
-bool Board::isStalemate(bool isWhite) {
+bool Board::isStalemate(bool isWhite) 
+{
     if (isInCheck(isWhite)) return false;  // Шах — не пат
 
     // Проверяем, есть ли валидные ходы
@@ -297,7 +352,8 @@ bool Board::isStalemate(bool isWhite) {
     return true;  // Пат — ничья
 }
 
-bool Board::isInsufficientMaterial() const {
+bool Board::isInsufficientMaterial() const 
+{
     int whitePieces = 0, blackPieces = 0;
     bool whiteKnightOrBishop = false, blackKnightOrBishop = false;
 
@@ -322,9 +378,24 @@ bool Board::isInsufficientMaterial() const {
     }
 
     if (whitePieces == 1 && blackPieces == 1) return true;  // Король vs король
-
     if (whitePieces == 1 && blackPieces == 2 && blackKnightOrBishop) return true;  // Король vs король + конь/слон
     if (whitePieces == 2 && blackPieces == 1 && whiteKnightOrBishop) return true;  // Обратное
 
     return false;
+}
+
+void Board::promotePawn(int row, int col, char newType) 
+{
+    Piece* pawn = board[row][col];
+    if (!pawn) return;
+
+    bool isWhite = pawn->getIsWhite();
+    char originalType = pawn->getType(); // Сохраняем тип пешки
+
+    delete pawn;
+    board[row][col] = new Piece(newType, row, col, isWhite);
+    
+    // Добавляем ход в историю (чтобы undo знал о превращении)
+    Move move(row, col, row, col, newType, ' ', isWhite, originalType);
+    moveHistory.push_back(move);
 }
