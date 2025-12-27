@@ -1,9 +1,9 @@
-# chess-app-cpp
+# Chess_Game
 Шахматы на Qt 6 (C++). Курсовой проект: MVC, сигналы/слоты, валидация ходов, Undo, GUI.
 
 # Шахматы — Qt-приложение на C++
 
-![GitHub](https://github.com/BaimuratZhaanbaev/chess-app-cpp.git?)
+![GitHub](https://github.com/BaimuratZhaanbaev/Chess_Game.git?)
 ![Qt](https://img.shields.io/badge/Qt-6.5.0-blue?style=flat-square)
 ![C++](https://img.shields.io/badge/C++-17-green?style=flat-square)
 ![Visual Studio](https://img.shields.io/badge/Visual_Studio-2022-purple?style=flat-square)
@@ -110,7 +110,7 @@ ChessGame/
 ## Автор
 
 **Жаанбаев Баймурат**  
-Студент КГУ, курсовая работа по ООП / Qt
+Студент КГУ, курсовая работа по ООП / Qt / С++
 
 ---
 
