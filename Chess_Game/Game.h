@@ -2,6 +2,9 @@
 #define GAME_H
 
 #include <QObject>
+#include <QDebug>
+#include <QFile>
+#include <QTextStream>
 #include "Board.h"
 #include "Move.h"
 #include <QString>
@@ -28,6 +31,7 @@ public:
     QString getStatus() const;
     Board& getBoard() { return board; }
     void promotePawn(int row, int col, char newType);
+    void saveGame(const QString& fileName) const;  // Метод для сохранения
 
 signals:
     void pawnPromotionRequired(int row, int col, bool isWhite);

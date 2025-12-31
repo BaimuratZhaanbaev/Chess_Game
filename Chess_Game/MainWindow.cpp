@@ -77,3 +77,19 @@ void MainWindow::onPawnPromotion(int row, int col, bool isWhite)
     ui->chessBoardWidget->update();
     ui->statusLabel->setText(game->getStatus());
 }
+
+
+void MainWindow::keyPressEvent(QKeyEvent* event) {
+    if (event->key() == Qt::Key_S && event->modifiers() & Qt::ControlModifier) {
+        // Сохранение по Ctrl+S
+        QString fileName = QFileDialog::getSaveFileName(this, "Сохранить партию", "", "Text Files (*.txt)");
+        if (!fileName.isEmpty()) {
+            game->saveGame(fileName);
+            QMessageBox::information(this, "Сохранение", "Партия сохранена в " + fileName);
+        }
+        event->accept();
+    }
+    else {
+        QMainWindow::keyPressEvent(event);  // Передаём другие клавиши выше
+    }
+}

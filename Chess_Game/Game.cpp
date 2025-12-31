@@ -121,3 +121,25 @@ void Game::promotePawn(int row, int col, char newType)
     isWhiteTurn = !isWhiteTurn;
     gameStatus = isWhiteTurn ? "Ход белых" : "Ход чёрных";
 }
+
+
+void Game::saveGame(const QString& fileName) const {
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qDebug() << "Ошибка открытия файла для сохранения:" << fileName;
+        return;
+    }
+
+    QTextStream out(&file);
+
+    // Записываем историю ходов через getter
+    for (const Move& move : board.getMoveHistory()) {
+        out << move.getFromRow() << " " << move.getFromCol() << " "
+            << move.getToRow() << " " << move.getToCol() << " "
+            << move.getPieceType() << " " << move.getCapturedType() << " "
+            << (move.getIsWhite() ? "white" : "black") << "\n";
+    }
+
+    file.close();
+    qDebug() << "Партия сохранена в" << fileName;
+}

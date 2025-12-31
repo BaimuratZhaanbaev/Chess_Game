@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QFileDialog>
+#include <QMessageBox>
 #include "Game.h"
 #include "ChessBoardWidget.h"
 
@@ -16,6 +18,9 @@ class MainWindow : public QMainWindow {
 public:
     MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
+
+protected:
+    void keyPressEvent(QKeyEvent* event) override;
 
 private slots:
     void onNewGame();

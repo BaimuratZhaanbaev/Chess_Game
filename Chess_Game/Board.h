@@ -22,6 +22,7 @@ public:
 
     bool wasLastMoveCapture() const { return lastMoveWasCapture; }
     char getLastMovedPieceType() const { return lastMovedPieceType; }
+    const std::vector<Move>& getMoveHistory() const { return moveHistory; }
 
     bool movePiece(int fromRow, int fromCol, int toRow, int toCol, bool isWhiteTurn);
 
@@ -36,7 +37,6 @@ public:
     bool isInsufficientMaterial() const;  // Недостаточно материала
 
     void promotePawn(int row, int col, char newType); // Превращение пешки
-
 };
 
 #endif // BOARD_H
